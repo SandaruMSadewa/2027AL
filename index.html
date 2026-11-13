@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2027 A/L Exam Countdown & Poster Studio</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono for Studio UI; Abhaya Libre, Gemunu Libre & Noto Sans Sinhala for Poster -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Abhaya+Libre:wght@600;700;800&family=Gemunu+Libre:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Noto+Sans+Sinhala:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        sinhala: ['"Noto Sans Sinhala"', 'sans-serif'],
+                        abhaya: ['"Abhaya Libre"', 'serif'],
+                        gemunu: ['"Gemunu Libre"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Range Sliders */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.12);
+            height: 6px;
+            border-radius: 999px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #f8fafc;
+            border: 2px solid #0f172a;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            transition: transform 0.15s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        /* Poster Aspect Ratios */
+        .poster-square {
+            aspect-ratio: 1 / 1;
+            max-width: 520px;
+        }
+        .poster-portrait {
+            aspect-ratio: 4 / 5;
+            max-width: 450px;
+        }
+
+        /* Fullscreen Class Mode */
+        #previewStage:fullscreen {
+            background-color: #09090b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        #previewStage:fullscreen .poster-square {
+            max-width: min(86vh, 86vw);
+            width: min(86vh, 86vw);
+        }
+        #previewStage:fullscreen .poster-portrait {
+            max-width: min(68vh, 86vw);
+            width: min(68vh, 86vw);
+        }
+
+        /* Subtle Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 999px;
+        }
+    </style>
+</head>
+<body class="bg-[#0b0d12] text-slate-100 font-sans min-h-screen flex flex-col selection:bg-white selection:text-slate-900">
+
+    <!-- Top Studio Header -->
+    <header class="sticky top-0 z-30 bg-[#0b0d12]/90 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+            <!-- Brand Title -->
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-9 h-9 rounded-xl bg-white text-slate-950 flex items-center justify-center font-extrabold text-sm shadow-sm shrink-0">
+                    27
+                </div>
+                <div class="min-w-0">
+                    <h1 class="text-sm sm:text-base font-bold text-white tracking-tight truncate">2027 A/L Countdown Studio</h1>
+                    <p class="text-[11px] text-slate-400 truncate hidden sm:block">Minimalist Sinhala Exam Poster & Daily Quote Generator</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2 shrink-0">
+                <button id="btnClassScreen" type="button" class="px-3 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-xs font-semibold text-slate-200 flex items-center gap-1.5 transition" title="Toggle Fullscreen Class Display">
+                    <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                    <span class="hidden md:inline">Class Screen</span>
+                </button>
+
+                <button id="btnCopyWhatsapp" type="button" class="px-3 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-xs font-semibold text-slate-200 flex items-center gap-1.5 transition" title="Copy Formatted Sinhala WhatsApp Message">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                    </svg>
+                    <span class="hidden sm:inline">Copy WhatsApp Text</span>
+                </button>
+
+                <button id="btnDownloadTop" type="button" class="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-200 text-slate-950 text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    <span>Download Poster (PNG)</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- LEFT COLUMN: Studio Controls Panel -->
+        <section class="lg:col-span-5 bg-[#12151e] border border-white/10 rounded-2xl p-4 sm:p-5 shadow-xl">
+            <!-- Step Switcher Tabs -->
+            <div class="grid grid-cols-2 gap-1.5 p-1 bg-black/40 rounded-xl border border-white/10 mb-5">
+                <button id="tabBtnPhoto" type="button" class="py-2 px-3 rounded-lg text-xs font-bold bg-white text-slate-950 shadow-sm transition">
+                    1. Design & Photo
+                </button>
+                <button id="tabBtnText" type="button" class="py-2 px-3 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">
+                    2. Date & Sinhala Text
+                </button>
+            </div>
+
+            <!-- TAB 1: DESIGN & FULL OVERLAY PHOTO -->
+            <div id="panelPhoto" class="space-y-5">
+                <!-- 4 Light-Toned Abstract Mesh Gradient Palettes -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">Light Abstract Mesh Theme</label>
+                        <span id="activeThemeLabel" class="text-[11px] font-semibold text-white">Glacier Mist</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" data-theme="glacierMist" class="theme-btn p-2.5 rounded-xl border border-white bg-white/10 text-left flex items-center gap-2.5 transition">
+                            <span class="w-5 h-5 rounded-full bg-gradient-to-br from-[#ffffff] via-[#dbeafe] to-[#cbd5e1] border border-sky-900/30 shrink-0"></span>
+                            <div class="min-w-0">
+                                <div class="text-xs font-bold text-white truncate">Glacier Mist</div>
+                                <div class="text-[10px] text-slate-400 truncate">Ice-Blue & Silver Waves</div>
+                            </div>
+                        </button>
+
+                        <button type="button" data-theme="warmSilk" class="theme-btn p-2.5 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] text-left flex items-center gap-2.5 transition">
+                            <span class="w-5 h-5 rounded-full bg-gradient-to-br from-[#ffffff] via-[#fef3c7] to-[#e7e5e4] border border-amber-900/30 shrink-0"></span>
+                            <div class="min-w-0">
+                                <div class="text-xs font-bold text-slate-200 truncate">Warm Silk</div>
+                                <div class="text-[10px] text-slate-400 truncate">Champagne & Alabaster</div>
+                            </div>
+                        </button>
+
+                        <button type="button" data-theme="pearlAurora" class="theme-btn p-2.5 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] text-left flex items-center gap-2.5 transition">
+                            <span class="w-5 h-5 rounded-full bg-gradient-to-br from-[#f3e8ff] via-[#ffffff] to-[#d1fae5] border border-indigo-900/30 shrink-0"></span>
+                            <div class="min-w-0">
+                                <div class="text-xs font-bold text-slate-200 truncate">Pearl Aurora</div>
+                                <div class="text-[10px] text-slate-400 truncate">Lavender, Mint & Pearl</div>
+                            </div>
+                        </button>
+
+                        <button type="button" data-theme="studioFrost" class="theme-btn p-2.5 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] text-left flex items-center gap-2.5 transition">
+                            <span class="w-5 h-5 rounded-full bg-gradient-to-br from-[#f8fafc] via-[#e2e8f0] to-[#cbd5e1] border border-slate-600/40 shrink-0"></span>
+                            <div class="min-w-0">
+                                <div class="text-xs font-bold text-slate-200 truncate">Studio Frost</div>
+                                <div class="text-[10px] text-slate-400 truncate">Cool Slate & White Mesh</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Full Overlay Photo Upload -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">Full Overlay Background Photo</label>
+                        <button id="btnRemovePhoto" type="button" class="hidden text-[11px] font-semibold text-rose-400 hover:text-rose-300 transition">
+                            Remove Photo
+                        </button>
+                    </div>
+                    <div id="dropZone" class="border-2 border-dashed border-white/15 hover:border-white/40 bg-white/[0.02] hover:bg-white/[0.04] rounded-xl p-4 text-center cursor-pointer transition">
+                        <input id="photoInput" type="file" accept="image/*" class="hidden">
+                        <div class="w-9 h-9 rounded-full bg-white/10 mx-auto mb-2 flex items-center justify-center text-slate-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <p class="text-xs font-semibold text-slate-200">Click or Drag & Drop Photo</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Optional: Add a class banner or portrait behind the white veil</p>
+                    </div>
+                </div>
+
+                <!-- Photo Adjustment Sliders -->
+                <div id="photoControlsBox" class="space-y-3.5 pt-2 border-t border-white/10">
+                    <!-- White Translucent Veil Opacity -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 font-medium">White Veil Opacity (Readability)</span>
+                            <span id="overlayValLabel" class="font-mono text-slate-300">75%</span>
+                        </div>
+                        <input id="sliderOverlay" type="range" min="0" max="95" value="75" class="w-full">
+                    </div>
+
+                    <!-- Zoom Slider -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 font-medium">Photo Zoom</span>
+                            <span id="zoomValLabel" class="font-mono text-slate-300">100%</span>
+                        </div>
+                        <input id="sliderZoom" type="range" min="100" max="220" value="100" class="w-full">
+                    </div>
+
+                    <!-- Horizontal X & Vertical Y Sliders -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300 font-medium">Horizontal X</span>
+                                <span id="posXValLabel" class="font-mono text-slate-300">0%</span>
+                            </div>
+                            <input id="sliderPosX" type="range" min="-50" max="50" value="0" class="w-full">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300 font-medium">Vertical Y</span>
+                                <span id="posYValLabel" class="font-mono text-slate-300">0%</span>
+                            </div>
+                            <input id="sliderPosY" type="range" min="-50" max="50" value="0" class="w-full">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: DATE & SINHALA TEXT -->
+            <div id="panelText" class="hidden space-y-4">
+                <!-- Target Exam Date & Time -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label for="inputExamDate" class="text-xs font-semibold uppercase tracking-wider text-slate-400">Target Exam Date & Time</label>
+                        <button id="btnPreset2027" type="button" class="text-[11px] font-semibold text-amber-400 hover:text-amber-300 transition">
+                            Reset: 2027 Aug 02
+                        </button>
+                    </div>
+                    <input id="inputExamDate" type="datetime-local" value="2027-08-02T08:30" class="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-white/15 text-xs font-mono text-white focus:outline-none focus:border-white">
+                </div>
+
+                <!-- Poster Main Heading (Sinhala) -->
+                <div>
+                    <label for="inputPosterTitle" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Poster Heading (Sinhala)</label>
+                    <input id="inputPosterTitle" type="text" value="2027 උසස් පෙළ විභාගයට තව" class="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-white/15 text-sm font-sinhala text-white focus:outline-none focus:border-white">
+                </div>
+
+                <!-- Class / Institute Name -->
+                <div>
+                    <label for="inputClassName" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Class / Institute Footer</label>
+                    <input id="inputClassName" type="text" value="Gangitha Kalutara - Physics" class="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-white/15 text-sm font-sinhala text-white focus:outline-none focus:border-white">
+                    <p class="text-[11px] text-slate-400 mt-1">Automatically framed with stars: <span class="text-slate-200 font-medium">★ Gangitha Kalutara - Physics ★</span></p>
+                </div>
+
+                <!-- Daily Auto-Rotating Sinhala Motivation Quote -->
+                <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 space-y-2.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Daily Sinhala Quote (Auto 12:00 AM)
+                        </span>
+                        <span id="midnightTimerBadge" class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/10 text-slate-300">
+                            Next in --:--:--
+                        </span>
+                    </div>
+
+                    <p id="studioQuotePreview" class="text-xs font-sinhala text-slate-300 leading-relaxed bg-black/30 p-2.5 rounded-lg border border-white/5"></p>
+
+                    <div class="flex items-center justify-between gap-2">
+                        <button id="btnPreviewNextQuote" type="button" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-[11px] font-semibold text-white transition">
+                            Preview Next Quote
+                        </button>
+                        <button id="btnResetTodayQuote" type="button" class="hidden px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-amber-400 hover:text-amber-300 transition">
+                            Back to Today's Quote
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Customizable WhatsApp Message Template -->
+                <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 space-y-2.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <label for="inputWhatsappTemplate" class="text-xs font-bold text-white flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            WhatsApp Message Template
+                        </label>
+                        <button id="btnResetWhatsappTemplate" type="button" class="text-[11px] font-semibold text-amber-400 hover:text-amber-300 transition">
+                            Reset Template
+                        </button>
+                    </div>
+
+                    <textarea id="inputWhatsappTemplate" rows="6" class="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/15 text-xs font-sinhala text-slate-200 leading-relaxed focus:outline-none focus:border-white resize-y"></textarea>
+
+                    <!-- Quick Placeholder Tag Inserters -->
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="text-[10px] text-slate-400 mr-0.5">Insert tag:</span>
+                        <button type="button" data-tag="{days}" class="wa-tag-btn px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 text-[10px] font-mono text-emerald-300 transition">{days}</button>
+                        <button type="button" data-tag="{hours}" class="wa-tag-btn px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 text-[10px] font-mono text-emerald-300 transition">{hours}</button>
+                        <button type="button" data-tag="{weeks}" class="wa-tag-btn px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 text-[10px] font-mono text-sky-300 transition">{weeks}</button>
+                        <button type="button" data-tag="{months}" class="wa-tag-btn px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 text-[10px] font-mono text-sky-300 transition">{months}</button>
+                        <button type="button" data-tag="{date}" class="wa-tag-btn px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 text-[10px] font-mono text-amber-300 transition">{date}</button>
+                        <button type="button" data-tag="{quote}" class="wa-tag-btn px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 text-[10px] font-mono text-purple-300 transition">{quote}</button>
+                        <button type="button" data-tag="{class}" class="wa-tag-btn px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 text-[10px] font-mono text-slate-200 transition">{class}</button>
+                    </div>
+
+                    <!-- Live Formatted Preview & Copy -->
+                    <div class="pt-1 border-t border-white/10">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Live WhatsApp Output Preview</span>
+                            <button id="btnCopyWhatsappInline" type="button" class="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition">
+                                Copy Now
+                            </button>
+                        </div>
+                        <pre id="whatsappLivePreview" class="whitespace-pre-wrap break-words text-[11px] font-sinhala text-slate-300 bg-black/40 p-2.5 rounded-lg border border-white/5 leading-relaxed"></pre>
+                    </div>
+                </div>
+
+                <!-- Save Default Settings -->
+                <button id="btnSaveDefaults" type="button" class="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-slate-200 text-slate-950 text-xs font-bold transition shadow-sm">
+                    Save Default Settings
+                </button>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: Live Poster Preview Stage -->
+        <section id="previewStage" class="lg:col-span-7 flex flex-col items-center">
+            <!-- Aspect Ratio Switcher Toolbar -->
+            <div class="w-full max-w-[520px] flex items-center justify-between gap-3 mb-3">
+                <span class="text-xs font-semibold text-slate-400">Live Poster Preview (Sinhala)</span>
+                <div class="inline-flex p-1 rounded-xl bg-[#12151e] border border-white/10">
+                    <button id="btnRatioSquare" type="button" class="px-3 py-1 rounded-lg text-xs font-bold bg-white text-slate-950 transition">
+                        1:1 Square
+                    </button>
+                    <button id="btnRatioPortrait" type="button" class="px-3 py-1 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">
+                        4:5 Portrait
+                    </button>
+                </div>
+            </div>
+
+            <!-- LIVE POSTER CARD -->
+            <div id="posterCaptureArea" class="poster-square w-full relative overflow-hidden rounded-2xl shadow-2xl border border-white/15 select-none transition-all duration-300 bg-white text-zinc-950">
+                
+                <!-- Layer 1: Light Abstract Mesh Gradient Base -->
+                <div id="defaultBgPattern" class="absolute inset-0 transition-all duration-300"></div>
+
+                <!-- Layer 1B: Subtle Abstract Contour Waves & Geometric Ribbons -->
+                <svg id="abstractContourLayer" class="absolute inset-0 w-full h-full pointer-events-none opacity-80 transition-opacity duration-300" viewBox="0 0 800 800" preserveAspectRatio="none" fill="none">
+                    <defs>
+                        <linearGradient id="ribbonGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop id="ribbonStop1" offset="0%" stop-color="#38bdf8" stop-opacity="0.16" />
+                            <stop id="ribbonStop2" offset="100%" stop-color="#ffffff" stop-opacity="0.0" />
+                        </linearGradient>
+                        <linearGradient id="ribbonGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+                            <stop id="ribbonStop3" offset="0%" stop-color="#818cf8" stop-opacity="0.14" />
+                            <stop id="ribbonStop4" offset="100%" stop-color="#ffffff" stop-opacity="0.0" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M-80 180 C 160 60, 420 290, 880 120 L 880 -40 L -80 -40 Z" fill="url(#ribbonGrad1)" />
+                    <path d="M-80 650 C 220 510, 520 740, 880 570 L 880 860 L -80 860 Z" fill="url(#ribbonGrad2)" />
+                    <path id="contourLine1" d="M-60 220 C 190 100, 460 320, 860 150" stroke="#0284c7" stroke-opacity="0.16" stroke-width="1.5" />
+                    <path id="contourLine2" d="M-60 245 C 210 125, 480 345, 860 175" stroke="#0284c7" stroke-opacity="0.09" stroke-width="1" />
+                    <path id="contourLine3" d="M-60 610 C 240 480, 510 700, 860 540" stroke="#0284c7" stroke-opacity="0.14" stroke-width="1.5" />
+                    <circle id="abstractRing" cx="670" cy="150" r="145" stroke="#0284c7" stroke-opacity="0.10" stroke-width="1.2" />
+                </svg>
+
+                <!-- Layer 2: Optional Full-Overlay Photo -->
+                <img id="posterBgImg" src="" alt="Poster Background" class="hidden absolute inset-0 w-full h-full object-cover pointer-events-none">
+
+                <!-- Layer 3: White Translucent Veil (when photo is uploaded) -->
+                <div id="bgOverlay" class="absolute inset-0 pointer-events-none transition-colors duration-200"></div>
+
+                <!-- Layer 4: Soft Mesh Luminous Orbs -->
+                <div id="themeAmbientGlow" class="absolute inset-0 pointer-events-none"></div>
+
+                <!-- Layer 5: Architectural Hairline Border Frame -->
+                <div id="innerFrameOuter" class="absolute inset-4 sm:inset-5 rounded-xl border pointer-events-none transition-colors duration-300"></div>
+
+                <!-- Layer 6: Poster Content (Strictly Sinhala) -->
+                <div class="relative z-10 h-full flex flex-col justify-between p-7 sm:p-10">
+                    
+                    <!-- Top Row: Target Exam Date Pill (Horizontally Centered) -->
+                    <div class="flex items-center justify-center">
+                        <div id="examDatePill" class="px-4 py-1.5 rounded-full border backdrop-blur-md shadow-sm flex items-center gap-2 transition-colors duration-300">
+                            <span id="examDateCaption" class="text-[11px] sm:text-xs font-sinhala font-medium">විභාග දිනය:</span>
+                            <span id="posterTargetDate" class="text-xs sm:text-sm font-sinhala font-bold">2027 අගෝස්තු 02</span>
+                        </div>
+                    </div>
+
+                    <!-- Center Section: Heading, Days & Hours Cards, Summary Pill -->
+                    <div class="my-auto py-2 flex flex-col items-center text-center">
+                        <!-- Minimal Horizontal Rule -->
+                        <div id="titleLineAccent" class="w-12 h-[3px] rounded-full mb-3 transition-colors duration-300"></div>
+
+                        <!-- Main Sinhala Heading -->
+                        <h2 id="posterMainTitle" class="font-abhaya font-extrabold text-2xl sm:text-[32px] leading-tight tracking-tight mb-5 sm:mb-6">
+                            2027 උසස් පෙළ විභාගයට තව
+                        </h2>
+
+                        <!-- Days (දින) & Hours (පැය) Cards ONLY -->
+                        <div class="w-full max-w-[390px] grid grid-cols-[1fr_auto_1fr] items-center gap-2.5 sm:gap-4 mb-4 sm:mb-5">
+                            <!-- Days Card -->
+                            <div id="daysCard" class="rounded-2xl border py-4 sm:py-5 px-3 backdrop-blur-sm transition-colors duration-300">
+                                <div id="daysCount" class="font-mono font-extrabold text-5xl sm:text-6xl leading-none tracking-tight">
+                                    000
+                                </div>
+                                <div id="daysLabel" class="font-gemunu font-bold text-lg sm:text-xl mt-2 tracking-wide">
+                                    දින
+                                </div>
+                            </div>
+
+                            <!-- Minimalist Colon Dots -->
+                            <div class="flex flex-col items-center justify-center gap-2.5 px-0.5">
+                                <span class="ornament-dot w-1.5 h-1.5 rounded-full"></span>
+                                <span class="ornament-dot w-1.5 h-1.5 rounded-full"></span>
+                            </div>
+
+                            <!-- Hours Card -->
+                            <div id="hoursCard" class="rounded-2xl border py-4 sm:py-5 px-3 backdrop-blur-sm transition-colors duration-300">
+                                <div id="hoursCount" class="font-mono font-extrabold text-5xl sm:text-6xl leading-none tracking-tight">
+                                    00
+                                </div>
+                                <div id="hoursLabel" class="font-gemunu font-bold text-lg sm:text-xl mt-2 tracking-wide">
+                                    පැය
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Remaining Weeks & Months Subtitle Pill -->
+                        <div id="summaryPill" class="px-4 py-1.5 rounded-full border text-xs sm:text-[13px] font-sinhala font-medium inline-flex items-center gap-2.5 transition-colors duration-300">
+                            <span>ඉතිරි සති: <strong id="weeksLeft" class="font-mono font-bold">0.0</strong></span>
+                            <span class="opacity-40">|</span>
+                            <span>ඉතිරි මාස: <strong id="monthsLeft" class="font-mono font-bold">0.0</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Section: Daily Sinhala Quote & Starred Footer -->
+                    <div class="space-y-3.5">
+                        <!-- Quote Block -->
+                        <div class="text-center px-2">
+                            <div id="quoteDividerTop" class="w-16 h-[1px] mx-auto mb-2.5"></div>
+                            <p id="posterQuoteText" class="font-sinhala text-xs sm:text-[14px] font-medium leading-relaxed">
+                                “අද ඔබ කරන කුඩා කැපකිරීම, 2027 ඔබේ විශිෂ්ට ජයග්‍රහණයේ පදනමයි.”
+                            </p>
+                            <div id="quoteDividerBottom" class="w-16 h-[1px] mx-auto mt-2.5"></div>
+                        </div>
+
+                        <!-- Starred Class / Institute Signature Bar -->
+                        <div id="footerSignatureBar" class="w-full py-2.5 px-4 rounded-xl border backdrop-blur-md flex items-center justify-center gap-2.5 transition-colors duration-300">
+                            <span id="footerStarLeft" class="text-xs sm:text-sm">★</span>
+                            <span id="posterClassName" class="font-sinhala font-bold text-xs sm:text-sm tracking-wide truncate">
+                                Gangitha Kalutara - Physics
+                            </span>
+                            <span id="footerStarRight" class="text-xs sm:text-sm">★</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Helpful Caption Below Poster -->
+            <p class="mt-3 text-[11px] text-slate-400 text-center max-w-[480px]">
+                Tip: Pick an abstract light gradient theme or upload your own photo, then click <strong class="text-slate-200">Download Poster (PNG)</strong> to share on WhatsApp or Facebook.
+            </p>
+        </section>
+    </main>
+
+    <!-- Non-blocking Toast Notification Banner -->
+    <div id="toastBanner" class="fixed bottom-5 right-5 z-50 px-4 py-2.5 rounded-xl bg-white text-slate-950 text-xs font-bold shadow-xl border border-slate-200 opacity-0 translate-y-2 pointer-events-none transition-all duration-300 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span id="toastMessage">Saved!</span>
+    </div>
+
+    <script>
+        // Default Poster & Exam Settings
+        const DEFAULTS = {
+            date: '2027-08-02',
+            time: '08:30',
+            posterTitle: '2027 උසස් පෙළ විභාගයට තව',
+            className: 'Gangitha Kalutara - Physics',
+            whatsappTemplate: [
+                '*📅 {title} දින {days}✨️*',
+                '',
+                '> {quote}',
+                '',
+                '★ *{class}* ★'
+            ].join('\n')
+        };
+
+        // 4 Light-Toned Abstract Mesh Gradient Palettes
+        const POSTER_THEMES = {
+            glacierMist: {
+                name: 'Glacier Mist',
+                bgCss: 'radial-gradient(at 14% 16%, rgba(186, 230, 253, 0.72) 0px, transparent 52%), radial-gradient(at 86% 22%, rgba(224, 242, 254, 0.85) 0px, transparent 50%), radial-gradient(at 80% 86%, rgba(199, 210, 254, 0.55) 0px, transparent 54%), radial-gradient(at 18% 84%, rgba(226, 232, 240, 0.75) 0px, transparent 52%), linear-gradient(145deg, #ffffff 0%, #f0f9ff 48%, #f8fafc 100%)',
+                canvasStops: ['#ffffff', '#f0f9ff', '#e0f2fe'],
+                orb1: 'rgba(125, 211, 252, 0.32)',
+                orb2: 'rgba(165, 180, 252, 0.24)',
+                contourColor: '#0284c7',
+                ribbon1: '#38bdf8',
+                ribbon2: '#818cf8',
+                photoOverlayRgb: '248, 250, 252',
+                frameBorder: 'rgba(2, 132, 199, 0.16)',
+                accentColor: '#0369a1',
+                primaryText: '#0f172a',
+                numberColor: '#0c4a6e',
+                secondaryText: '#334155',
+                mutedText: '#1e293b',
+                cardBg: 'rgba(255, 255, 255, 0.78)',
+                cardBorder: 'rgba(2, 132, 199, 0.18)',
+                pillBg: 'rgba(255, 255, 255, 0.82)',
+                dividerColor: 'rgba(2, 132, 199, 0.25)'
+            },
+            warmSilk: {
+                name: 'Warm Silk',
+                bgCss: 'radial-gradient(at 16% 18%, rgba(254, 243, 199, 0.75) 0px, transparent 52%), radial-gradient(at 85% 20%, rgba(254, 215, 170, 0.45) 0px, transparent 50%), radial-gradient(at 82% 85%, rgba(231, 229, 228, 0.75) 0px, transparent 54%), radial-gradient(at 15% 85%, rgba(254, 249, 195, 0.6) 0px, transparent 50%), linear-gradient(145deg, #ffffff 0%, #fffbeb 50%, #fafaf9 100%)',
+                canvasStops: ['#ffffff', '#fffbeb', '#fef3c7'],
+                orb1: 'rgba(253, 224, 71, 0.24)',
+                orb2: 'rgba(251, 191, 36, 0.18)',
+                contourColor: '#b45309',
+                ribbon1: '#f59e0b',
+                ribbon2: '#d97706',
+                photoOverlayRgb: '255, 251, 235',
+                frameBorder: 'rgba(180, 83, 9, 0.16)',
+                accentColor: '#92400e',
+                primaryText: '#1c1917',
+                numberColor: '#78350f',
+                secondaryText: '#44403c',
+                mutedText: '#292524',
+                cardBg: 'rgba(255, 255, 255, 0.78)',
+                cardBorder: 'rgba(180, 83, 9, 0.18)',
+                pillBg: 'rgba(255, 255, 255, 0.82)',
+                dividerColor: 'rgba(180, 83, 9, 0.25)'
+            },
+            pearlAurora: {
+                name: 'Pearl Aurora',
+                bgCss: 'radial-gradient(at 15% 15%, rgba(243, 232, 255, 0.75) 0px, transparent 52%), radial-gradient(at 85% 22%, rgba(209, 250, 229, 0.65) 0px, transparent 50%), radial-gradient(at 80% 85%, rgba(224, 231, 255, 0.7) 0px, transparent 54%), radial-gradient(at 18% 82%, rgba(252, 231, 243, 0.55) 0px, transparent 50%), linear-gradient(145deg, #ffffff 0%, #faf5ff 50%, #f0fdf4 100%)',
+                canvasStops: ['#ffffff', '#faf5ff', '#ecfdf5'],
+                orb1: 'rgba(216, 180, 254, 0.28)',
+                orb2: 'rgba(110, 231, 183, 0.22)',
+                contourColor: '#6d28d9',
+                ribbon1: '#a855f7',
+                ribbon2: '#10b981',
+                photoOverlayRgb: '250, 245, 255',
+                frameBorder: 'rgba(109, 40, 217, 0.15)',
+                accentColor: '#5b21b6',
+                primaryText: '#18181b',
+                numberColor: '#4c1d95',
+                secondaryText: '#3f3f46',
+                mutedText: '#27272a',
+                cardBg: 'rgba(255, 255, 255, 0.78)',
+                cardBorder: 'rgba(109, 40, 217, 0.16)',
+                pillBg: 'rgba(255, 255, 255, 0.82)',
+                dividerColor: 'rgba(109, 40, 217, 0.22)'
+            },
+            studioFrost: {
+                name: 'Studio Frost',
+                bgCss: 'radial-gradient(at 15% 15%, rgba(226, 232, 240, 0.85) 0px, transparent 52%), radial-gradient(at 85% 20%, rgba(241, 245, 249, 0.9) 0px, transparent 50%), radial-gradient(at 82% 85%, rgba(203, 213, 225, 0.65) 0px, transparent 54%), radial-gradient(at 18% 82%, rgba(228, 228, 231, 0.7) 0px, transparent 50%), linear-gradient(145deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)',
+                canvasStops: ['#ffffff', '#f8fafc', '#e2e8f0'],
+                orb1: 'rgba(148, 163, 184, 0.25)',
+                orb2: 'rgba(203, 213, 225, 0.30)',
+                contourColor: '#334155',
+                ribbon1: '#64748b',
+                ribbon2: '#94a3b8',
+                photoOverlayRgb: '248, 250, 252',
+                frameBorder: 'rgba(51, 65, 85, 0.16)',
+                accentColor: '#1e293b',
+                primaryText: '#09090b',
+                numberColor: '#0f172a',
+                secondaryText: '#475569',
+                mutedText: '#1e293b',
+                cardBg: 'rgba(255, 255, 255, 0.80)',
+                cardBorder: 'rgba(51, 65, 85, 0.18)',
+                pillBg: 'rgba(255, 255, 255, 0.85)',
+                dividerColor: 'rgba(51, 65, 85, 0.22)'
+            }
+        };
+
+        // 30 Daily Sinhala Motivational Quotes (Pure Mindset & Motivation — Auto-rotates at 12:00 AM Midnight)
+        const DAILY_SINHALA_QUOTES = [
+            '“අද ඔබ කරන කුඩා කැපකිරීම, හෙට ඔබේ විශිෂ්ට ජයග්‍රහණයේ පදනමයි.”',
+            '“තව කාලය තිබේ යැයි සිතා අද දවස නාස්ති නොකරන්න; සෑම පැයක්ම ඔබේ අනාගතය තීරණය කරයි.”',
+            '“අමාරු තැන්වලදී අතහරින්න එපා; ඔබ ජයගත යුත්තේ අනෙක් අය නතර වන තැනින්ය.”',
+            '“සිහින දකින්නන් බොහෝ සිටියත්, ජයග්‍රහණය හිමිවන්නේ අද සිට කැපවීමෙන් වැඩ කරන අයට පමණි.”',
+            '“ඔබට අවශ්‍ය වෙනස ඇති කළ හැක්කේ වෙන කාටවත් නොව, ඔබටම පමණි.”',
+            '“නිදිමත සහ කම්මැලිකම පරාජය කරන දවසට, ඔබ සාර්ථකත්වයට තවත් පියවරක් ළං වේ.”',
+            '“ඔබේ දෙමාපියන්ගේ ඇස්වල සතුටු කඳුළු දකින්නට නම්, අද ඔබ වෙහෙස විය යුතුමය.”',
+            '“දිනපතා ස්ථිරව කැපවීම, අවසාන මොහොතේ කලබල වීමට වඩා දහස් ගුණයකින් වටී.”',
+            '“වැරදුණු තැන් ගැන පසුතැවෙන්න එපා. අද සිට අලුතින් පටන් ගන්න; ජයගන්න තවමත් ඔබට කාලය තිබේ.”',
+            '“ඔබේ අරමුණ පැහැදිලි නම්, කිසිදු බාධකයකට ඔබව නතර කළ නොහැක.”',
+            '“ඔබට බැහැ කියා කිසිවෙකුට කියන්නට ඉඩ නොදෙන්න; ඔබේ ජයග්‍රහණයෙන් ඔවුන්ට පිළිතුරු දෙන්න.”',
+            '“ජයග්‍රහණය යනු අහම්බයක් නොවේ; එය දිනපතා කරන නිවැරදි පුහුණුවේ සහ විනයේ ප්‍රතිඵලයකි.”',
+            '“අද ඔබ දරන වෙහෙස තාවකාලිකයි; නමුත් එයින් ලැබෙන ජයග්‍රහණය ඔබේ මුළු ජීවිතයම වෙනස් කරනු ඇත.”',
+            '“විශිෂ්ටයන් බිහිවන්නේ පහසු මාර්ගවලින් නොව, දුෂ්කර අභියෝග ජය ගැනීමෙනි.”',
+            '“කාලය කා දමන දේවල් වලින් ඈත් වන්න; ඔබේ ඉලක්කය වෙත පමණක් අවධානය යොමු කරන්න.”',
+            '“අනාගතයේදී ආඩම්බරයෙන් ආපසු හැරී බලන්නට නම්, අද දවස උපරිමයෙන් කැප කරන්න.”',
+            '“කුඩා පියවර වුවද නොනැතී ඉදිරියට තබන්න; ගමනාන්තය ඔබ බලාපොරොත්තු වූවාටත් වඩා ලස්සන වනු ඇත.”',
+            '“ඔබේ එකම තරඟකරුවා වන්නේ ඊයේ සිටි ඔබමයි. අද ඊයේට වඩා හොඳින් වැඩ කරන්න.”',
+            '“සාර්ථකත්වයට කෙටි මාර්ග නැත; ඇත්තේ නොපසුබට උත්සාහය සහ නිවැරදි සැලසුම පමණි.”',
+            '“අද ඔබ කරන සෑම උත්සාහයක්ම, ඔබේ හෙට දවසේ සිහිනය සැබෑ කරන ශක්තියයි.”',
+            '“අභියෝග හමුවේ නොසැලී සිටින්න; කුණාටු මැදින් පියාසර කරන කුරුල්ලා ඉහළම අහස ජය ගනී.”',
+            '“දින ගණන් කරනවා සේම, ඒ සෑම දිනකම ඔබේ ඉලක්කය වෙනුවෙන් කළ කැපවීමත් අර්ථවත් කරන්න.”',
+            '“පැහැදිලි ඉලක්කයක් සහ දැඩි අධිෂ්ඨානයක් ඇති කෙනෙකුට ඕනෑම බාධකයක් ජයගත හැකිය.”',
+            '“ඔබට විශ්වාස නම් ඔබට එය කළ හැකිය; විශ්වාසය සහ කැපවීම එක් වූ තැන ජයග්‍රහණය ස්ථිරයි.”',
+            '“අද දවස ඔබට ලැබුණු තවත් වටිනා අවස්ථාවකි. එය උපරිමයෙන් ප්‍රයෝජනයට ගන්න.”',
+            '“වෙහෙස දැනෙන විට මඳක් විවේක ගන්න, නමුත් කිසිවිටෙකත් ගමන නතර නොකරන්න.”',
+            '“හොඳම ප්‍රතිඵලය ලැබෙන්නේ වඩාත්ම දක්ෂ අයට නොව, කිසිවිටෙකත් උත්සාහය අත්නොහරින අයටයි.”',
+            '“ඔබේ අනාගතය ලියැවෙන්නේ අද ඔබ ගන්නා තීරණ සහ කැපවීම මතයි.”',
+            '“සෑම උදෑසනකම අලුත් බලාපොරොත්තුවකින් අවදි වන්න; ජයග්‍රහණය ඔබේමයි.”',
+            '“අද නිහඬව වෙහෙස වන්න; හෙට ඔබේ සාර්ථකත්වය මුළු ලෝකයටම කතා කරනු ඇත.”'
+        ];
+
+        const SINHALA_MONTHS = [
+            'ජනවාරි', 'පෙබරවාරි', 'මාර්තු', 'අප්‍රේල්', 'මැයි', 'ජූනි',
+            'ජූලි', 'අගෝස්තු', 'සැප්තැම්බර්', 'ඔක්තෝබර්', 'නොවැම්බර්', 'දෙසැම්බර්'
+        ];
+
+        // Application State
+        const state = {
+            themeKey: localStorage.getItem('al27_theme') || 'glacierMist',
+            ratio: 'square',
+            examDate: DEFAULTS.date,
+            examTime: DEFAULTS.time,
+            posterTitle: DEFAULTS.posterTitle,
+            className: DEFAULTS.className,
+            whatsappTemplate: DEFAULTS.whatsappTemplate,
+            loadedImageObj: null,
+            zoom: 100,
+            posX: 0,
+            posY: 0,
+            overlayOpacity: 75,
+            quoteDayOffset: 0,
+            currentQuoteIndex: 0
+        };
+
+        // Load Saved Settings from LocalStorage if available
+        try {
+            const savedRaw = localStorage.getItem('al27_poster_settings');
+            if (savedRaw) {
+                const parsed = JSON.parse(savedRaw);
+                if (parsed.examDate) state.examDate = parsed.examDate;
+                if (parsed.examTime) state.examTime = parsed.examTime;
+                if (parsed.posterTitle) state.posterTitle = parsed.posterTitle;
+                if (parsed.className) state.className = parsed.className;
+                const oldDefaults = [
+                    '*{title} දින {days}*\n\n{quote}\n\n★ *{class}* ★'
+                ];
+                if (
+                    parsed.whatsappTemplate &&
+                    !parsed.whatsappTemplate.includes('🔥 තව *දින {days}* යි') &&
+                    !oldDefaults.includes(parsed.whatsappTemplate.trim())
+                ) {
+                    state.whatsappTemplate = parsed.whatsappTemplate;
+                }
+                if (parsed.themeKey && POSTER_THEMES[parsed.themeKey]) state.themeKey = parsed.themeKey;
+            }
+        } catch (err) {
+            console.warn('Could not read saved settings:', err);
+        }
+
+        // Format Sinhala Target Date Badge (e.g., "2027 අගෝස්තු 02")
+        function formatSinhalaDate(dateStr) {
+            if (!dateStr) return '2027 අගෝස්තු 02';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            const year = parts[0];
+            const monthIdx = parseInt(parts[1], 10) - 1;
+            const day = parts[2].padStart(2, '0');
+            const monthName = SINHALA_MONTHS[monthIdx] || parts[1];
+            return `${year} ${monthName} ${day}`;
+        }
+
+        // Apply Light-Toned Abstract Mesh Theme to Live Preview Poster
+        function applyPosterTheme(themeKey) {
+            const t = POSTER_THEMES[themeKey] || POSTER_THEMES.glacierMist;
+            state.themeKey = themeKey;
+
+            // Update theme selector button highlights
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                const isSelected = btn.getAttribute('data-theme') === themeKey;
+                btn.classList.toggle('border-white', isSelected);
+                btn.classList.toggle('bg-white/10', isSelected);
+                btn.classList.toggle('border-white/10', !isSelected);
+                btn.classList.toggle('bg-white/[0.02]', !isSelected);
+            });
+
+            const activeLabel = document.getElementById('activeThemeLabel');
+            if (activeLabel) activeLabel.textContent = t.name;
+
+            // Apply Mesh Gradient Background
+            const defaultBg = document.getElementById('defaultBgPattern');
+            if (defaultBg) defaultBg.style.background = t.bgCss;
+
+            // Update Abstract SVG Contour Wave Colors
+            const rStop1 = document.getElementById('ribbonStop1');
+            const rStop3 = document.getElementById('ribbonStop3');
+            if (rStop1) rStop1.setAttribute('stop-color', t.ribbon1);
+            if (rStop3) rStop3.setAttribute('stop-color', t.ribbon2);
+
+            ['contourLine1', 'contourLine2', 'contourLine3', 'abstractRing'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.setAttribute('stroke', t.contourColor);
+            });
+
+            // Soft Ambient Orbs
+            const ambientGlow = document.getElementById('themeAmbientGlow');
+            if (ambientGlow) {
+                ambientGlow.style.background = `radial-gradient(circle at 20% 25%, ${t.orb1} 0%, transparent 45%), radial-gradient(circle at 80% 78%, ${t.orb2} 0%, transparent 45%)`;
+            }
+
+            // Inner Architectural Frame
+            const frameOuter = document.getElementById('innerFrameOuter');
+            if (frameOuter) frameOuter.style.borderColor = t.frameBorder;
+
+            // Top Target Date Pill
+            const datePill = document.getElementById('examDatePill');
+            if (datePill) {
+                datePill.style.backgroundColor = t.pillBg;
+                datePill.style.borderColor = t.cardBorder;
+            }
+            const dateCaption = document.getElementById('examDateCaption');
+            const targetDateEl = document.getElementById('posterTargetDate');
+            if (dateCaption) dateCaption.style.color = t.secondaryText;
+            if (targetDateEl) targetDateEl.style.color = t.accentColor;
+
+            // Title Accent & Main Heading
+            const titleAccent = document.getElementById('titleLineAccent');
+            if (titleAccent) titleAccent.style.backgroundColor = t.accentColor;
+
+            const mainTitle = document.getElementById('posterMainTitle');
+            if (mainTitle) mainTitle.style.color = t.primaryText;
+
+            // Days & Hours Cards
+            ['daysCard', 'hoursCard'].forEach(id => {
+                const card = document.getElementById(id);
+                if (card) {
+                    card.style.backgroundColor = t.cardBg;
+                    card.style.borderColor = t.cardBorder;
+                }
+            });
+
+            ['daysCount', 'hoursCount'].forEach(id => {
+                const num = document.getElementById(id);
+                if (num) num.style.color = t.numberColor;
+            });
+
+            ['daysLabel', 'hoursLabel'].forEach(id => {
+                const lbl = document.getElementById(id);
+                if (lbl) lbl.style.color = t.secondaryText;
+            });
+
+            document.querySelectorAll('.ornament-dot').forEach(dot => {
+                dot.style.backgroundColor = t.accentColor;
+            });
+
+            // Summary Pill
+            const summaryPill = document.getElementById('summaryPill');
+            if (summaryPill) {
+                summaryPill.style.backgroundColor = t.pillBg;
+                summaryPill.style.borderColor = t.cardBorder;
+                summaryPill.style.color = t.secondaryText;
+            }
+            const weeksLeft = document.getElementById('weeksLeft');
+            const monthsLeft = document.getElementById('monthsLeft');
+            if (weeksLeft) weeksLeft.style.color = t.accentColor;
+            if (monthsLeft) monthsLeft.style.color = t.accentColor;
+
+            // Quote Dividers & Text
+            const qTop = document.getElementById('quoteDividerTop');
+            const qBot = document.getElementById('quoteDividerBottom');
+            if (qTop) qTop.style.backgroundColor = t.dividerColor;
+            if (qBot) qBot.style.backgroundColor = t.dividerColor;
+
+            const quoteEl = document.getElementById('posterQuoteText');
+            if (quoteEl) quoteEl.style.color = t.mutedText;
+
+            // Footer Signature Bar
+            const footerBar = document.getElementById('footerSignatureBar');
+            if (footerBar) {
+                footerBar.style.backgroundColor = t.pillBg;
+                footerBar.style.borderColor = t.cardBorder;
+            }
+            const starLeft = document.getElementById('footerStarLeft');
+            const starRight = document.getElementById('footerStarRight');
+            const classEl = document.getElementById('posterClassName');
+            if (starLeft) starLeft.style.color = t.accentColor;
+            if (starRight) starRight.style.color = t.accentColor;
+            if (classEl) classEl.style.color = t.primaryText;
+
+            updatePhotoTransform();
+        }
+
+        // Show Non-blocking Toast Notification
+        let toastTimer = null;
+        function showToast(msg) {
+            const banner = document.getElementById('toastBanner');
+            const label = document.getElementById('toastMessage');
+            if (!banner || !label) return;
+            label.textContent = msg;
+            banner.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none');
+            banner.classList.add('opacity-100', 'translate-y-0');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                banner.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none');
+                banner.classList.remove('opacity-100', 'translate-y-0');
+            }, 2600);
+        }
+
+        // Update Full-Overlay Photo Transform & White Readability Veil
+        function updatePhotoTransform() {
+            const imgEl = document.getElementById('posterBgImg');
+            const overlayEl = document.getElementById('bgOverlay');
+            const t = POSTER_THEMES[state.themeKey] || POSTER_THEMES.glacierMist;
+
+            if (imgEl) {
+                imgEl.style.transform = `translate(${state.posX}%, ${state.posY}%) scale(${state.zoom / 100})`;
+            }
+            if (overlayEl) {
+                if (state.loadedImageObj) {
+                    const alpha = (state.overlayOpacity / 100).toFixed(2);
+                    overlayEl.style.backgroundColor = `rgba(${t.photoOverlayRgb}, ${alpha})`;
+                } else {
+                    overlayEl.style.backgroundColor = 'transparent';
+                }
+            }
+        }
+
+        // Handle Uploaded Image File
+        function handleImageFile(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                showToast('Please select a valid image file.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function (evt) {
+                const dataUrl = evt.target.result;
+                const img = new Image();
+                img.onload = function () {
+                    state.loadedImageObj = img;
+                    const posterImg = document.getElementById('posterBgImg');
+                    const removeBtn = document.getElementById('btnRemovePhoto');
+                    if (posterImg) {
+                        posterImg.src = dataUrl;
+                        posterImg.classList.remove('hidden');
+                    }
+                    if (removeBtn) removeBtn.classList.remove('hidden');
+                    updatePhotoTransform();
+                    showToast('Background photo applied!');
+                };
+                img.src = dataUrl;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Calculate Day Index Since Local Epoch for Midnight (12:00 AM) Quote Rotation
+        function getLocalDaySerial(now) {
+            const localMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            return Math.floor(localMidnight.getTime() / 86400000);
+        }
+
+        // Update Daily Sinhala Quote & Midnight Countdown Timer
+        function updateDailyQuoteAndMidnightTimer() {
+            const now = new Date();
+            const daySerial = getLocalDaySerial(now) + state.quoteDayOffset;
+            const totalQuotes = DAILY_SINHALA_QUOTES.length;
+            const idx = ((daySerial % totalQuotes) + totalQuotes) % totalQuotes;
+            state.currentQuoteIndex = idx;
+
+            const quoteText = DAILY_SINHALA_QUOTES[idx];
+            const posterQuoteEl = document.getElementById('posterQuoteText');
+            const studioQuoteEl = document.getElementById('studioQuotePreview');
+            if (posterQuoteEl) posterQuoteEl.textContent = quoteText;
+            if (studioQuoteEl) studioQuoteEl.textContent = quoteText;
+
+            // Update countdown to next 12:00 AM (Midnight)
+            const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+            const diffMs = Math.max(0, nextMidnight - now);
+            const h = String(Math.floor(diffMs / 3600000)).padStart(2, '0');
+            const m = String(Math.floor((diffMs % 3600000) / 60000)).padStart(2, '0');
+            const s = String(Math.floor((diffMs % 60000) / 1000)).padStart(2, '0');
+            const badge = document.getElementById('midnightTimerBadge');
+            if (badge) badge.textContent = `Next in ${h}:${m}:${s}`;
+
+            updateWhatsAppPreview();
+        }
+
+        // Update Live Countdown (Days & Hours Only)
+        function updateCountdown() {
+            const targetStr = `${state.examDate}T${state.examTime || '08:30'}:00`;
+            const targetDate = new Date(targetStr);
+            const now = new Date();
+            const diff = targetDate.getTime() - now.getTime();
+
+            let days = 0;
+            let hours = 0;
+            let weeks = '0.0';
+            let months = '0.0';
+
+            if (!isNaN(diff) && diff > 0) {
+                const totalHours = Math.floor(diff / (1000 * 60 * 60));
+                days = Math.floor(totalHours / 24);
+                hours = totalHours % 24;
+                const exactDays = diff / (1000 * 60 * 60 * 24);
+                weeks = (exactDays / 7).toFixed(1);
+                months = (exactDays / 30.4375).toFixed(1);
+            }
+
+            const daysEl = document.getElementById('daysCount');
+            const hoursEl = document.getElementById('hoursCount');
+            const weeksEl = document.getElementById('weeksLeft');
+            const monthsEl = document.getElementById('monthsLeft');
+            const targetDateLabel = document.getElementById('posterTargetDate');
+
+            if (daysEl) daysEl.textContent = String(days).padStart(3, '0');
+            if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
+            if (weeksEl) weeksEl.textContent = weeks;
+            if (monthsEl) monthsEl.textContent = months;
+            if (targetDateLabel) targetDateLabel.textContent = formatSinhalaDate(state.examDate);
+
+            updateDailyQuoteAndMidnightTimer();
+        }
+
+        // Render Formatted WhatsApp Message from Custom Template
+        function buildFormattedWhatsAppMessage() {
+            const daysRaw = document.getElementById('daysCount')?.textContent || '000';
+            const hoursRaw = document.getElementById('hoursCount')?.textContent || '00';
+            const weeksVal = document.getElementById('weeksLeft')?.textContent || '0.0';
+            const monthsVal = document.getElementById('monthsLeft')?.textContent || '0.0';
+            const quoteText = DAILY_SINHALA_QUOTES[state.currentQuoteIndex] || '';
+            const dateFormatted = formatSinhalaDate(state.examDate);
+
+            const replacements = {
+                '{title}': state.posterTitle,
+                '{date}': dateFormatted,
+                '{days}': String(parseInt(daysRaw, 10)),
+                '{hours}': String(parseInt(hoursRaw, 10)),
+                '{weeks}': weeksVal,
+                '{months}': monthsVal,
+                '{quote}': quoteText,
+                '{class}': state.className
+            };
+
+            let output = state.whatsappTemplate || DEFAULTS.whatsappTemplate;
+            Object.entries(replacements).forEach(([token, value]) => {
+                output = output.split(token).join(value);
+            });
+            return output;
+        }
+
+        // Update Live WhatsApp Preview Box in Settings Tab
+        function updateWhatsAppPreview() {
+            const previewEl = document.getElementById('whatsappLivePreview');
+            if (previewEl) {
+                previewEl.textContent = buildFormattedWhatsAppMessage();
+            }
+        }
+
+        // Helper: Draw Rounded Rectangle Path on HTML5 Canvas
+        function drawRoundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        // Helper: Wrap Multi-Line Sinhala Text on Canvas
+        function wrapCanvasText(ctx, text, x, startY, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            const lines = [];
+
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && n > 0) {
+                    lines.push(line.trim());
+                    line = words[n] + ' ';
+                } else {
+                    line = testLine;
+                }
+            }
+            lines.push(line.trim());
+
+            const totalHeight = (lines.length - 1) * lineHeight;
+            let y = startY - totalHeight / 2;
+            lines.forEach(l => {
+                ctx.fillText(l, x, y);
+                y += lineHeight;
+            });
+        }
+
+        // High-Resolution 1080px PNG Poster Exporter
+        async function exportPosterPNG() {
+            try {
+                showToast('Rendering high-res PNG poster...');
+                if (document.fonts && document.fonts.ready) {
+                    await document.fonts.ready;
+                }
+
+                const t = POSTER_THEMES[state.themeKey] || POSTER_THEMES.glacierMist;
+                const W = 1080;
+                const H = state.ratio === 'portrait' ? 1350 : 1080;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = W;
+                canvas.height = H;
+                const ctx = canvas.getContext('2d');
+
+                // 1. Base Light Gradient
+                const baseGrad = ctx.createLinearGradient(0, 0, W, H);
+                baseGrad.addColorStop(0, t.canvasStops[0]);
+                baseGrad.addColorStop(0.5, t.canvasStops[1]);
+                baseGrad.addColorStop(1, t.canvasStops[2]);
+                ctx.fillStyle = baseGrad;
+                ctx.fillRect(0, 0, W, H);
+
+                // 2. Soft Mesh Luminous Orbs
+                const orbA = ctx.createRadialGradient(W * 0.16, H * 0.18, 10, W * 0.16, H * 0.18, W * 0.55);
+                orbA.addColorStop(0, t.orb1);
+                orbA.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.fillStyle = orbA;
+                ctx.fillRect(0, 0, W, H);
+
+                const orbB = ctx.createRadialGradient(W * 0.84, H * 0.82, 10, W * 0.84, H * 0.82, W * 0.55);
+                orbB.addColorStop(0, t.orb2);
+                orbB.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.fillStyle = orbB;
+                ctx.fillRect(0, 0, W, H);
+
+                // 3. Abstract Contour Wave Lines
+                ctx.save();
+                ctx.strokeStyle = t.contourColor;
+                ctx.globalAlpha = 0.14;
+                ctx.lineWidth = 2.2;
+                ctx.beginPath();
+                ctx.moveTo(-80, H * 0.26);
+                ctx.bezierCurveTo(W * 0.25, H * 0.12, W * 0.6, H * 0.38, W + 80, H * 0.18);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(-80, H * 0.76);
+                ctx.bezierCurveTo(W * 0.3, H * 0.60, W * 0.65, H * 0.86, W + 80, H * 0.68);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(W * 0.84, H * 0.18, 190, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+
+                // 4. Optional Uploaded Background Photo & White Veil
+                if (state.loadedImageObj) {
+                    const img = state.loadedImageObj;
+                    const imgRatio = img.width / img.height;
+                    const canvasRatio = W / H;
+                    let drawW, drawH;
+                    if (imgRatio > canvasRatio) {
+                        drawH = H;
+                        drawW = H * imgRatio;
+                    } else {
+                        drawW = W;
+                        drawH = W / imgRatio;
+                    }
+                    const scale = state.zoom / 100;
+                    drawW *= scale;
+                    drawH *= scale;
+                    const offsetX = (W - drawW) / 2 + (state.posX / 100) * W;
+                    const offsetY = (H - drawH) / 2 + (state.posY / 100) * H;
+                    ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+
+                    ctx.fillStyle = `rgba(${t.photoOverlayRgb}, ${(state.overlayOpacity / 100).toFixed(2)})`;
+                    ctx.fillRect(0, 0, W, H);
+                }
+
+                // 5. Architectural Inner Frame
+                const pad = 44;
+                ctx.strokeStyle = t.frameBorder;
+                ctx.lineWidth = 2.5;
+                drawRoundRect(ctx, pad, pad, W - pad * 2, H - pad * 2, 28);
+                ctx.stroke();
+
+                // 6. Top Centered Target Exam Date Pill
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const dateCaption = 'විභාග දිනය: ';
+                const dateValue = formatSinhalaDate(state.examDate);
+                ctx.font = '600 24px "Noto Sans Sinhala", sans-serif';
+                const capW = ctx.measureText(dateCaption).width;
+                ctx.font = '700 25px "Noto Sans Sinhala", sans-serif';
+                const valW = ctx.measureText(dateValue).width;
+                const pillW = capW + valW + 64;
+                const pillH = 54;
+                const pillX = (W - pillW) / 2;
+                const pillY = 88;
+
+                ctx.fillStyle = t.pillBg;
+                drawRoundRect(ctx, pillX, pillY, pillW, pillH, 27);
+                ctx.fill();
+                ctx.strokeStyle = t.cardBorder;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                const textStartX = pillX + 32;
+                ctx.textAlign = 'left';
+                ctx.fillStyle = t.secondaryText;
+                ctx.font = '600 24px "Noto Sans Sinhala", sans-serif';
+                ctx.fillText(dateCaption, textStartX, pillY + pillH / 2 + 1);
+                ctx.fillStyle = t.accentColor;
+                ctx.font = '700 25px "Noto Sans Sinhala", sans-serif';
+                ctx.fillText(dateValue, textStartX + capW, pillY + pillH / 2 + 1);
+
+                // 7. Center Section: Accent Rule, Main Heading, Days & Hours Cards, Summary Pill
+                const centerY = H * 0.47;
+
+                // Accent Bar
+                ctx.fillStyle = t.accentColor;
+                drawRoundRect(ctx, W / 2 - 48, centerY - 245, 96, 6, 3);
+                ctx.fill();
+
+                // Main Sinhala Title
+                ctx.textAlign = 'center';
+                ctx.fillStyle = t.primaryText;
+                ctx.font = '800 58px "Abhaya Libre", "Noto Sans Sinhala", serif';
+                ctx.fillText(state.posterTitle, W / 2, centerY - 175);
+
+                // Days & Hours Cards
+                const cardW = 330;
+                const cardH = 265;
+                const gap = 74;
+                const leftCardX = W / 2 - cardW - gap / 2;
+                const rightCardX = W / 2 + gap / 2;
+                const cardY = centerY - 110;
+
+                const daysText = document.getElementById('daysCount')?.textContent || '000';
+                const hoursText = document.getElementById('hoursCount')?.textContent || '00';
+
+                // Left Card (Days)
+                ctx.fillStyle = t.cardBg;
+                drawRoundRect(ctx, leftCardX, cardY, cardW, cardH, 34);
+                ctx.fill();
+                ctx.strokeStyle = t.cardBorder;
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+
+                ctx.fillStyle = t.numberColor;
+                ctx.font = '800 124px "JetBrains Mono", monospace';
+                ctx.fillText(daysText, leftCardX + cardW / 2, cardY + 108);
+
+                ctx.fillStyle = t.secondaryText;
+                ctx.font = '700 40px "Gemunu Libre", "Noto Sans Sinhala", sans-serif';
+                ctx.fillText('දින', leftCardX + cardW / 2, cardY + 205);
+
+                // Center Colon Dots
+                ctx.fillStyle = t.accentColor;
+                ctx.beginPath();
+                ctx.arc(W / 2, cardY + cardH / 2 - 22, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(W / 2, cardY + cardH / 2 + 22, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Right Card (Hours)
+                ctx.fillStyle = t.cardBg;
+                drawRoundRect(ctx, rightCardX, cardY, cardW, cardH, 34);
+                ctx.fill();
+                ctx.strokeStyle = t.cardBorder;
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+
+                ctx.fillStyle = t.numberColor;
+                ctx.font = '800 124px "JetBrains Mono", monospace';
+                ctx.fillText(hoursText, rightCardX + cardW / 2, cardY + 108);
+
+                ctx.fillStyle = t.secondaryText;
+                ctx.font = '700 40px "Gemunu Libre", "Noto Sans Sinhala", sans-serif';
+                ctx.fillText('පැය', rightCardX + cardW / 2, cardY + 205);
+
+                // Summary Pill (Weeks & Months)
+                const weeksVal = document.getElementById('weeksLeft')?.textContent || '0.0';
+                const monthsVal = document.getElementById('monthsLeft')?.textContent || '0.0';
+                const summaryStr = `ඉතිරි සති: ${weeksVal}   |   ඉතිරි මාස: ${monthsVal}`;
+                ctx.font = '600 25px "Noto Sans Sinhala", sans-serif';
+                const sumW = ctx.measureText(summaryStr).width + 76;
+                const sumH = 54;
+                const sumX = (W - sumW) / 2;
+                const sumY = cardY + cardH + 38;
+
+                ctx.fillStyle = t.pillBg;
+                drawRoundRect(ctx, sumX, sumY, sumW, sumH, 27);
+                ctx.fill();
+                ctx.strokeStyle = t.cardBorder;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.fillStyle = t.secondaryText;
+                ctx.fillText(summaryStr, W / 2, sumY + sumH / 2 + 1);
+
+                // 8. Bottom Quote & Starred Class Signature Bar
+                const footerH = 74;
+                const footerY = H - 86 - footerH;
+                const quoteCenterY = footerY - 105;
+
+                ctx.fillStyle = t.dividerColor;
+                ctx.fillRect(W / 2 - 70, quoteCenterY - 62, 140, 2);
+                ctx.fillRect(W / 2 - 70, quoteCenterY + 62, 140, 2);
+
+                ctx.fillStyle = t.mutedText;
+                ctx.font = '600 27px "Noto Sans Sinhala", sans-serif';
+                const activeQuote = DAILY_SINHALA_QUOTES[state.currentQuoteIndex] || '';
+                wrapCanvasText(ctx, activeQuote, W / 2, quoteCenterY, W - 200, 42);
+
+                // Footer Bar
+                const footerX = 88;
+                const footerW = W - 176;
+                ctx.fillStyle = t.pillBg;
+                drawRoundRect(ctx, footerX, footerY, footerW, footerH, 22);
+                ctx.fill();
+                ctx.strokeStyle = t.cardBorder;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.font = '700 28px "Noto Sans Sinhala", sans-serif';
+                const classText = state.className.trim() || 'Gangitha Kalutara - Physics';
+                const classW = ctx.measureText(classText).width;
+                const starGap = 24;
+
+                ctx.fillStyle = t.primaryText;
+                ctx.fillText(classText, W / 2, footerY + footerH / 2 + 1);
+
+                ctx.fillStyle = t.accentColor;
+                ctx.fillText('★', W / 2 - classW / 2 - starGap, footerY + footerH / 2 + 1);
+                ctx.fillText('★', W / 2 + classW / 2 + starGap, footerY + footerH / 2 + 1);
+
+                // Trigger Download
+                const link = document.createElement('a');
+                link.download = `2027-AL-Countdown-${state.examDate}.png`;
+                link.href = canvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast('Poster downloaded (PNG)!');
+            } catch (err) {
+                console.error('Export failed:', err);
+                showToast('Could not generate PNG. Please try again.');
+            }
+        }
+
+        // Copy Formatted Sinhala WhatsApp Message
+        function copyWhatsAppMessage() {
+            const message = buildFormattedWhatsAppMessage();
+
+            const tempArea = document.createElement('textarea');
+            tempArea.value = message;
+            tempArea.style.position = 'fixed';
+            tempArea.style.left = '-9999px';
+            document.body.appendChild(tempArea);
+            tempArea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Custom WhatsApp message copied!');
+            } catch (err) {
+                showToast('Failed to copy message.');
+            }
+            document.body.removeChild(tempArea);
+        }
+
+        // Initialize All Studio Event Listeners
+        function initStudio() {
+            // Populate inputs from state
+            const examInput = document.getElementById('inputExamDate');
+            const titleInput = document.getElementById('inputPosterTitle');
+            const classInput = document.getElementById('inputClassName');
+            const waTemplateInput = document.getElementById('inputWhatsappTemplate');
+
+            if (examInput) examInput.value = `${state.examDate}T${state.examTime}`;
+            if (titleInput) {
+                titleInput.value = state.posterTitle;
+                document.getElementById('posterMainTitle').textContent = state.posterTitle;
+            }
+            if (classInput) {
+                classInput.value = state.className;
+                document.getElementById('posterClassName').textContent = state.className;
+            }
+            if (waTemplateInput) {
+                waTemplateInput.value = state.whatsappTemplate;
+            }
+
+            // Tab Switchers
+            const tabPhoto = document.getElementById('tabBtnPhoto');
+            const tabText = document.getElementById('tabBtnText');
+            const panelPhoto = document.getElementById('panelPhoto');
+            const panelText = document.getElementById('panelText');
+
+            if (tabPhoto && tabText) {
+                tabPhoto.addEventListener('click', () => {
+                    panelPhoto.classList.remove('hidden');
+                    panelText.classList.add('hidden');
+                    tabPhoto.className = 'py-2 px-3 rounded-lg text-xs font-bold bg-white text-slate-950 shadow-sm transition';
+                    tabText.className = 'py-2 px-3 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition';
+                });
+                tabText.addEventListener('click', () => {
+                    panelText.classList.remove('hidden');
+                    panelPhoto.classList.add('hidden');
+                    tabText.className = 'py-2 px-3 rounded-lg text-xs font-bold bg-white text-slate-950 shadow-sm transition';
+                    tabPhoto.className = 'py-2 px-3 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition';
+                });
+            }
+
+            // Theme Buttons
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const key = btn.getAttribute('data-theme');
+                    if (key) applyPosterTheme(key);
+                });
+            });
+
+            // Photo Upload & Drag-and-Drop
+            const dropZone = document.getElementById('dropZone');
+            const photoInput = document.getElementById('photoInput');
+            const btnRemovePhoto = document.getElementById('btnRemovePhoto');
+
+            if (dropZone && photoInput) {
+                dropZone.addEventListener('click', () => photoInput.click());
+                photoInput.addEventListener('change', (e) => {
+                    if (e.target.files && e.target.files[0]) {
+                        handleImageFile(e.target.files[0]);
+                    }
+                });
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('border-white');
+                });
+                dropZone.addEventListener('dragleave', () => {
+                    dropZone.classList.remove('border-white');
+                });
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('border-white');
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                        handleImageFile(e.dataTransfer.files[0]);
+                    }
+                });
+            }
+
+            if (btnRemovePhoto) {
+                btnRemovePhoto.addEventListener('click', () => {
+                    state.loadedImageObj = null;
+                    const posterImg = document.getElementById('posterBgImg');
+                    if (posterImg) {
+                        posterImg.src = '';
+                        posterImg.classList.add('hidden');
+                    }
+                    if (photoInput) photoInput.value = '';
+                    btnRemovePhoto.classList.add('hidden');
+                    updatePhotoTransform();
+                    showToast('Background photo removed.');
+                });
+            }
+
+            // Sliders
+            const sliderOverlay = document.getElementById('sliderOverlay');
+            const sliderZoom = document.getElementById('sliderZoom');
+            const sliderPosX = document.getElementById('sliderPosX');
+            const sliderPosY = document.getElementById('sliderPosY');
+
+            if (sliderOverlay) {
+                sliderOverlay.addEventListener('input', (e) => {
+                    state.overlayOpacity = parseInt(e.target.value, 10);
+                    document.getElementById('overlayValLabel').textContent = `${state.overlayOpacity}%`;
+                    updatePhotoTransform();
+                });
+            }
+            if (sliderZoom) {
+                sliderZoom.addEventListener('input', (e) => {
+                    state.zoom = parseInt(e.target.value, 10);
+                    document.getElementById('zoomValLabel').textContent = `${state.zoom}%`;
+                    updatePhotoTransform();
+                });
+            }
+            if (sliderPosX) {
+                sliderPosX.addEventListener('input', (e) => {
+                    state.posX = parseInt(e.target.value, 10);
+                    document.getElementById('posXValLabel').textContent = `${state.posX}%`;
+                    updatePhotoTransform();
+                });
+            }
+            if (sliderPosY) {
+                sliderPosY.addEventListener('input', (e) => {
+                    state.posY = parseInt(e.target.value, 10);
+                    document.getElementById('posYValLabel').textContent = `${state.posY}%`;
+                    updatePhotoTransform();
+                });
+            }
+
+            // Date & Text Inputs
+            if (examInput) {
+                examInput.addEventListener('change', (e) => {
+                    const val = e.target.value;
+                    if (val && val.includes('T')) {
+                        const [d, t] = val.split('T');
+                        state.examDate = d;
+                        state.examTime = t.slice(0, 5);
+                        updateCountdown();
+                    }
+                });
+            }
+
+            const btnPreset2027 = document.getElementById('btnPreset2027');
+            if (btnPreset2027 && examInput) {
+                btnPreset2027.addEventListener('click', () => {
+                    state.examDate = DEFAULTS.date;
+                    state.examTime = DEFAULTS.time;
+                    examInput.value = `${DEFAULTS.date}T${DEFAULTS.time}`;
+                    updateCountdown();
+                    showToast('Reset to 2027 August 02.');
+                });
+            }
+
+            if (titleInput) {
+                titleInput.addEventListener('input', (e) => {
+                    state.posterTitle = e.target.value;
+                    document.getElementById('posterMainTitle').textContent = state.posterTitle;
+                    updateWhatsAppPreview();
+                });
+            }
+
+            if (classInput) {
+                classInput.addEventListener('input', (e) => {
+                    state.className = e.target.value;
+                    document.getElementById('posterClassName').textContent = state.className;
+                    updateWhatsAppPreview();
+                });
+            }
+
+            // Custom WhatsApp Template Editor & Tag Inserters
+            if (waTemplateInput) {
+                waTemplateInput.addEventListener('input', (e) => {
+                    state.whatsappTemplate = e.target.value;
+                    updateWhatsAppPreview();
+                });
+            }
+
+            document.querySelectorAll('.wa-tag-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tag = btn.getAttribute('data-tag');
+                    if (!waTemplateInput || !tag) return;
+                    const start = waTemplateInput.selectionStart ?? waTemplateInput.value.length;
+                    const end = waTemplateInput.selectionEnd ?? waTemplateInput.value.length;
+                    const val = waTemplateInput.value;
+                    waTemplateInput.value = val.slice(0, start) + tag + val.slice(end);
+                    state.whatsappTemplate = waTemplateInput.value;
+                    waTemplateInput.focus();
+                    waTemplateInput.setSelectionRange(start + tag.length, start + tag.length);
+                    updateWhatsAppPreview();
+                });
+            });
+
+            const btnResetWa = document.getElementById('btnResetWhatsappTemplate');
+            if (btnResetWa && waTemplateInput) {
+                btnResetWa.addEventListener('click', () => {
+                    state.whatsappTemplate = DEFAULTS.whatsappTemplate;
+                    waTemplateInput.value = state.whatsappTemplate;
+                    updateWhatsAppPreview();
+                    showToast('WhatsApp template reset to default.');
+                });
+            }
+
+            const btnCopyWaInline = document.getElementById('btnCopyWhatsappInline');
+            if (btnCopyWaInline) {
+                btnCopyWaInline.addEventListener('click', copyWhatsAppMessage);
+            }
+
+            // Quote Preview Controls
+            const btnNextQuote = document.getElementById('btnPreviewNextQuote');
+            const btnResetQuote = document.getElementById('btnResetTodayQuote');
+            if (btnNextQuote && btnResetQuote) {
+                btnNextQuote.addEventListener('click', () => {
+                    state.quoteDayOffset += 1;
+                    btnResetQuote.classList.remove('hidden');
+                    updateDailyQuoteAndMidnightTimer();
+                });
+                btnResetQuote.addEventListener('click', () => {
+                    state.quoteDayOffset = 0;
+                    btnResetQuote.classList.add('hidden');
+                    updateDailyQuoteAndMidnightTimer();
+                });
+            }
+
+            // Save Defaults
+            const btnSave = document.getElementById('btnSaveDefaults');
+            if (btnSave) {
+                btnSave.addEventListener('click', () => {
+                    try {
+                        localStorage.setItem('al27_theme', state.themeKey);
+                        localStorage.setItem('al27_poster_settings', JSON.stringify({
+                            examDate: state.examDate,
+                            examTime: state.examTime,
+                            posterTitle: state.posterTitle,
+                            className: state.className,
+                            whatsappTemplate: state.whatsappTemplate,
+                            themeKey: state.themeKey
+                        }));
+                        showToast('Default settings saved!');
+                    } catch (err) {
+                        showToast('Could not save settings locally.');
+                    }
+                });
+            }
+
+            // Aspect Ratio Switcher
+            const btnSquare = document.getElementById('btnRatioSquare');
+            const btnPortrait = document.getElementById('btnRatioPortrait');
+            const captureArea = document.getElementById('posterCaptureArea');
+            if (btnSquare && btnPortrait && captureArea) {
+                btnSquare.addEventListener('click', () => {
+                    state.ratio = 'square';
+                    captureArea.classList.remove('poster-portrait');
+                    captureArea.classList.add('poster-square');
+                    btnSquare.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-white text-slate-950 transition';
+                    btnPortrait.className = 'px-3 py-1 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition';
+                });
+                btnPortrait.addEventListener('click', () => {
+                    state.ratio = 'portrait';
+                    captureArea.classList.remove('poster-square');
+                    captureArea.classList.add('poster-portrait');
+                    btnPortrait.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-white text-slate-950 transition';
+                    btnSquare.className = 'px-3 py-1 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition';
+                });
+            }
+
+            // Top Header Actions
+            const btnClassScreen = document.getElementById('btnClassScreen');
+            const previewStage = document.getElementById('previewStage');
+            if (btnClassScreen && previewStage) {
+                btnClassScreen.addEventListener('click', () => {
+                    if (!document.fullscreenElement) {
+                        previewStage.requestFullscreen().catch(() => {
+                            showToast('Fullscreen mode not permitted in this frame.');
+                        });
+                    } else {
+                        document.exitFullscreen();
+                    }
+                });
+            }
+
+            const btnCopyWhatsapp = document.getElementById('btnCopyWhatsapp');
+            if (btnCopyWhatsapp) {
+                btnCopyWhatsapp.addEventListener('click', copyWhatsAppMessage);
+            }
+
+            const btnDownloadTop = document.getElementById('btnDownloadTop');
+            if (btnDownloadTop) {
+                btnDownloadTop.addEventListener('click', exportPosterPNG);
+            }
+
+            // Apply initial theme and start 1-second live timer
+            applyPosterTheme(state.themeKey);
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        }
+
+        window.addEventListener('DOMContentLoaded', initStudio);
+    </script>
+</body>
+</html>
